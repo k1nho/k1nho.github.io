@@ -305,7 +305,7 @@ That's it for this entry! We have made tremendous progress at **Kinho’s Homela
 
 We now have our own **orchestration platform**, but it’s looking a little empty. Not only that, but many of our installations to the cluster have been manual, we certainly need to improve this. In the next entry, we will start setting up some applications to run in the cluster, and work on transitioning into a **GitOps workflow**!
 
-- **Previous:** [Kinho's Homelab Series - Securing my Network with Tailscale]({{< relref "bss_what_is_cidr/index.md" >}})
+- **Previous:** [Kinho's Homelab Series - Securing my Network with Tailscale]({{< relref "hs_1_tailscale/index.md" >}})
 
 - **Next: TBD**
 
