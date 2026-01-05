@@ -1,0 +1,191 @@
+baseURL: "https://k1nho.github.io"
+languageCode: en-Us
+defaultContentLanguage: en
+title: "Kin Hong NG"
+theme: "hugo-narrow"
+canonifyURLs: true
+
+caches:
+  images:
+    dir: :cacheDir/images
+
+mermaid:
+  enabled: true
+
+pagination:
+  pagerSize: 6
+
+permalinks:
+  posts: /posts/:slug/
+  pages: /:slug/
+
+enableEmoji: true
+
+markup:
+  tableOfContents:
+    startLevel: 2
+    endLevel: 4
+    ordered: false
+  goldmark:
+    renderer:
+      unsafe: true
+    extensions:
+      extras:
+        delete:
+          enable: true
+        insert:
+          enable: true
+        mark:
+          enable: true
+        subscript:
+          enable: false
+        superscript:
+          enable: false
+      strikethrough: false
+  highlight:
+    codeFences: true
+    guessSyntax: false
+    lineNos: false
+    lineNumbersInTable: false # Set to false
+    noClasses: false
+    style: github # No need to change
+    tabWidth: 2
+
+params:
+  description: "Kin Hong NG Blog"
+  keywords: ["Coding", "Programming", "Technology", "Kin Hong NG", "DevOps"]
+
+  defaultAuthor: "Kin Hong NG"
+  language: "en-US"
+  shortName: "Kinho"
+
+  home:
+    recentPostsCount: 5
+
+  post:
+    showRelated: true
+    relatedPostsCount: 3
+    license:
+      show: false
+
+  header:
+    sticky: true
+    logo:
+      image: "/images/logokin.png" # Relative path in static directory
+      link: "/"
+    showThemeSwitch: false
+    showDarkModeSwitch: true # Whether to show dark mode switch button
+    showLanguageSwitch: false # Whether to show language switch button
+    languageSwitchMode: "dropdown" # Language switch mode: "dropdown" or "cycle"
+
+  favicon:
+    svg: "/favicon.svg"
+
+  author:
+    name: "Kin Hong NG"
+    title: "Sharing my developer stories, and research."
+    description: "Present Day, Present Time hahaha"
+    avatar: "images/kinhongng_pfp.jpg"
+    social:
+      - name: "GitHub"
+        url: "https://github.com/k1nho"
+        icon: "github"
+      - name: "LinkedIn"
+        url: "https://linkedin.com/in/kin-hong-ng"
+        icon: "linkedin"
+      - name: "Email"
+        url: "mailto:kinhong99@gmail.com"
+        icon: "email"
+
+  dock: "float"
+
+  toc:
+    enabled: true
+    position: "right"
+    maxWidth: "280px"
+    maxHeight: "80vh"
+
+  analytics:
+    enabled: true
+    google:
+      enabled: true
+      id: "G-7ELZG4S91G"
+
+menus:
+  main:
+    - name: nav.posts # Display name
+      pageRef: /posts # Page reference
+      weight: 20 # Sort weight
+      params:
+        icon: posts # Icon name
+
+    - name: nav.categories
+      pageRef: /categories
+      weight: 30
+      params:
+        icon: categories
+
+    - name: nav.tags
+      pageRef: /tags
+      weight: 40
+      params:
+        icon: tags
+
+    - name: nav.archives
+      pageRef: /archives
+      weight: 50
+      params:
+        icon: archive
+
+    - name: nav.about
+      pageRef: /about
+      weight: 60
+      params:
+        icon: about
+
+  footer:
+    - name: RSS Feed
+      url: /index.xml
+      weight: 30
+      params:
+        icon: rss
+
+    - name: About
+      pageRef: /about
+      weight: 10
+      params:
+        icon: about
+
+  social:
+    - name: GitHub
+      url: https://github.com/k1nho
+      weight: 10
+      params:
+        icon: github
+
+    - name: Twitter
+      url: https://twitter.com/kinho_nth
+      weight: 20
+      params:
+        icon: twitter
+
+    - name: LinkedIn
+      url: https://linkedin.com/in/kin-hong-ng
+      weight: 30
+      params:
+        icon: linkedin
+
+    - name: Email
+      url: mailto:kinhong99@gmail.com
+      weight: 40
+      params:
+        icon: email
+
+outputs:
+  home: ["HTML", "RSS", "JSON", "WebAppManifest"]
+
+outputFormats:
+  WebAppManifest:
+    mediaType: "application/manifest+json"
+    baseName: "site"
+    isPlainText: true
