@@ -1,9 +1,8 @@
-baseURL: "https://k1nho.github.io"
+baseURL: "https://kincodes.com/"
 languageCode: en-Us
 defaultContentLanguage: en
 title: "Kin Hong NG"
 theme: "hugo-narrow"
-canonifyURLs: true
 
 caches:
   images:
