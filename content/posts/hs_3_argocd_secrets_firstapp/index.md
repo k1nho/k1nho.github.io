@@ -19,6 +19,12 @@ In this entry, I will introduce [Argo CD](https://argo-cd.readthedocs.io/en/stab
 
 ---
 
+# 3. GitOps, Secrets, and First Application
+
+![Homelab Series 2](gallery/homelabs_cover3.png)
+
+---
+
 ## What is Argo CD ?
 
 ![ArgoCD Logo](gallery/argocd_logo.png)

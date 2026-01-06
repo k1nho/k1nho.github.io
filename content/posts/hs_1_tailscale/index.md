@@ -21,6 +21,12 @@ For this first article in the series, I’ll cover **setting up my first node an
 
 ---
 
+# 1. Securing my Network with Tailscale
+
+![Homelab Series 1](gallery/homelabs_cover1.png)
+
+---
+
 ## Grandma's Laptop Has a Use!
 
 As I mentioned earlier, the goal is to build a homelab that works as a playground for experimentation which means even your **grandma’s old laptop** will work too.

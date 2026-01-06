@@ -16,6 +16,12 @@ We will make some modifications to improve the base installation of k3s by addin
 
 ---
 
+# 2. Orchestration Platform and Networking (K3s + Cilium)
+
+![Homelab Series 2](gallery/homelabs_cover2.png)
+
+---
+
 ## Deciding on a Kubernetes Distro
 
 ![k3s logo](gallery/k3s_logo.png)
