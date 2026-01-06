@@ -5,6 +5,8 @@ Description: "Can I win a gamejam in 24 hours using webdev technologies? In this
 Categories: ["Game Dev", "Hackathon", "Web Dev", "TypeScript"]
 Tags: ["Game Dev", "Web Dev", "Learning", "Story"]
 cover: "gallery/princess_okoku_cover.png"
+images:
+  - "gallery/princess_okoku_cover.png"
 ---
 
 I recently participated in Rosebud.ai game jam, its 3rd entry focused on the extra cute theme. I ended up winning the game jam and in this post, I would like to take you on a journey from concept to creation of Princess Okoku,

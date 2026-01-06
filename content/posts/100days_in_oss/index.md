@@ -5,6 +5,8 @@ Description: "What would happen if you spent 100 days in open source? I describe
 Categories: ["Open Source"]
 Tags: ["Contributing", "Open Source"]
 cover: "gallery/getting_started_in_oss_cover.png"
+images:
+  - "gallery/getting_started_in_oss_cover.png"
 ---
 
 October 31st marked the end of the 100 days of open source software (OSS) challenge by [Open Sauced](https://opensauced.pizza). This challenge aimed to unite newcomers, dedicated contributors, and maintainers within OSS projects to foster active involvement, learn new skills,

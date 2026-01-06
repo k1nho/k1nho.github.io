@@ -5,6 +5,8 @@ Description: "Kubernetes enables the user to set limits for resources such as CP
 Categories: ["Linux", "DevOps", "Platform Engineering", "Byte Wisdom"]
 Tags: ["Byte Wisdom", "cgroups", "Linux", "DevOps", "Learning"]
 cover: "gallery/bss_cgroups_cover.png"
+images:
+  - "gallery/bss_cgroups_cover.png"
 mermaid: true
 ---
 

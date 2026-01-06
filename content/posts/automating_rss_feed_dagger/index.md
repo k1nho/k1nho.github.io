@@ -5,6 +5,8 @@ Description: "Its time to automate my RSS Feed scrapping with Go and Dagger"
 Categories: ["DevOps", "Go"]
 Tags: ["DevOps", "Go", "Dagger", "Automation"]
 cover: "gallery/rss_feed_automation_cover.jpg"
+images:
+  - "gallery/rss_feed_automation_cover.jpg"
 mermaid: true
 ---
 

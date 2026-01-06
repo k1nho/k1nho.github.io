@@ -5,6 +5,8 @@ Description: "Let's build a mini homelab! In this entry, we move into the GitOps
 Categories: ["DevOps", "Networking", "Platform Engineering", "Homelab Series"]
 Tags: ["Homelab Series", "DevOps", "GitOps", "Networking"]
 cover: "gallery/homelabs_cover3.png"
+images:
+  - "gallery/homelabs_cover3.png"
 mermaid: true
 draft: true
 ---

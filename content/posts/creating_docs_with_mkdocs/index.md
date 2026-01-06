@@ -5,6 +5,8 @@ Description: "You want beautiful documentation with an integrated search functio
 Categories: ["Documentation", "Web Dev", "Open Source", "Tutorial"]
 Tags: ["Beginner", "Tutorial", "Story"]
 cover: "gallery/create_beautiful_docs_mkdocs_cover.png"
+images:
+  - "gallery/create_beautiful_docs_mkdocs_cover.png"
 ---
 
 Documentation is one of the most important pieces in any software project. Without documentation, it becomes harder to onboard new developers or gather community feedback, since there is

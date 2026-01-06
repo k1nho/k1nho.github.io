@@ -4,6 +4,8 @@ pubDate: 2023-08-08
 Categories: ["System Design", "Go"]
 Tags: ["System Design", "REST", "Backend", "Web Dev", "Learning", "Go"]
 cover: "gallery/put_rest_api_cover.jpg"
+images:
+  - "gallery/put_rest_api_cover.jpg"
 ---
 
 So, you’re building your first or maybe your hundredth REST API, or perhaps you’re following along with a tutorial, and you’re about to implement the PUT HTTP method for an endpoint. To demonstrate a simple workflow for implementing a PUT endpoint,

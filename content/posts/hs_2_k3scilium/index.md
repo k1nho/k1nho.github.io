@@ -5,6 +5,8 @@ Description: "Let's build a mini homelab! In this entry, I install Kubernetes an
 Categories: ["DevOps", "Networking", "Platform Engineering", "Homelab Series"]
 Tags: ["Homelab Series", "DevOps", "Networking"]
 cover: "gallery/homelabs_cover2.png"
+images:
+  - "gallery/homelabs_cover2.png"
 mermaid: true
 draft: true
 ---
