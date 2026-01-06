@@ -37,8 +37,6 @@ For me, that is an old [Sony VAIO VPCEH](https://vaiolibrary.com/VPCEH), Core i3
 
 ## Choosing a Linux Distro
 
-![Boomer Pants](gallery/ubuntubtw.jpg)
-
 When deciding which distro to flash onto the VAIO, I considered a few such as [Fedora](https://www.fedoraproject.org/server/), [Arch](https://archlinux.org/) btw, and even more k8s-suitable ones such as [Talos](https://www.talos.dev/). However, I’ll wear the boomer pants for now and go with **Ubuntu**.
 
 The simple fact is I actually do not mind Ubuntu. In fact, any **Linux is 10⁶ times better than Windows**. It’s stable, and that is what we want here: a **solid environment**. Even though our main goal is experimentation, we do not want to deal with random breakages during operations. Don't get me wrong, Arch will get its shot in the future, but for now, it is **Ubuntu btw**.
