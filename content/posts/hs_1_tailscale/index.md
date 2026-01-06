@@ -23,7 +23,7 @@ For this first article in the series, I’ll cover **setting up my first node an
 
 # 1. Securing my Network with Tailscale
 
-![Homelab Series 1](gallery/homelabs_cover1.png)
+![Homelab Series 1](gallery/homelab_in1.png)
 
 ---
 
