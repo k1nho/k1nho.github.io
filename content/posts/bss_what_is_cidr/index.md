@@ -4,6 +4,8 @@ pubDate: 2025-10-08
 Categories: ["Networking", "DevOps", "Platform Engineering", "Byte Wisdom"]
 Tags: ["Byte Wisdom", "Networking", "DevOps", "Learning"]
 cover: "gallery/what_is_cidr_cover.png"
+images:
+  - "gallery/what_is_cidr_cover.png"
 mermaid: true
 ---
 
