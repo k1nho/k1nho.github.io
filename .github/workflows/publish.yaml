@@ -17,6 +17,7 @@ jobs:
       USERNAME: ${{github.repository_owner}}
       SHA_TAG: ${{github.sha}}
       SEMVER_TAG: ${{github.ref_name}}
+      BASE_URL: https://blog.manakin-koi.ts.net # image for tailnet
 
     steps:
       - name: Checkout repository
@@ -30,6 +31,6 @@ jobs:
         env:
           PASSWORD: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          dagger call publish-image --registry=ghcr.io --name=$NAME --version=latest --sha=$SHA_TAG --username=$USERNAME --password=env:PASSWORD # latest
-          dagger call publish-image --registry=ghcr.io --name=$NAME --version=$SEMVER_TAG --sha=$SHA_TAG --username=$USERNAME --password=env:PASSWORD # semver
-          dagger call publish-image --registry=ghcr.io --name=$NAME --version=$SHA_TAG --sha=$SHA_TAG --username=$USERNAME --password=env:PASSWORD # sha
+          dagger call publish-image --registry=ghcr.io --name=$NAME --version=latest --sha=$SHA_TAG --base-url=$BASE_URL --username=$USERNAME --password=env:PASSWORD # latest
+          dagger call publish-image --registry=ghcr.io --name=$NAME --version=$SEMVER_TAG --sha=$SHA_TAG --base-url=$BASE_URL --username=$USERNAME --password=env:PASSWORD # semver
+          dagger call publish-image --registry=ghcr.io --name=$NAME --version=$SHA_TAG --sha=$SHA_TAG --base-url=$BASE_URL --username=$USERNAME --password=env:PASSWORD # sha
