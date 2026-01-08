@@ -253,6 +253,85 @@ spec:
       secretNamespace: tailscale-operator
 ```
 
+### Configuring the Tailscale Operator as an API Server Proxy (Optional)
+
+First, we need to configure access controls on Tailscale for the different groups.
+
+```json
+{
+  "grants": [
+    {
+      "src": ["autogroup:admin"], // change to the group/host that needs access
+      "dst": ["tag:k8s-operator"],
+      "app": {
+        "tailscale.com/cap/kubernetes": [
+          {
+            "impersonate": {
+              "groups": ["system:masters"] // select the appropiate group to impersonate
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
+```
+
+> [!NOTE]
+> If you already have some acls setup, it might drop traffic. You can write a quick test to check that access to the `tag:k8s-operator` at TCP/443 is possible. For example:
+>
+> ```json
+> {
+>   "tests": [
+>     {
+>       "src": "autogroup:admin",
+>       "accept": ["tag:k8s-operator:443"]
+>     }
+>   ]
+> }
+> ```
+
+Install the [helm chart](https://github.com/tailscale/tailscale/blob/main/cmd/k8s-operator/deploy/chart/values.yaml) with these `values.yaml`:
+
+```yaml
+apiServerProxyConfig:
+  mode: "true" # "true", "false", "noauth"
+  allowImpersonation: "true" # "true", "false"
+```
+
+#### Adding a Read-Only Cluster Role Binding
+
+Lastly, we can create a cluster role binding to the `view` cluster role that is read-only:
+
+```yaml {filename="crb-tsreader.yaml"}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: tsreader
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: view
+subjects:
+  - kind: Group
+    name: tsreader
+    apiGroup: rbac.authorization.k8s.io
+```
+
+Now, if we try to get the `clusterroles` resource, after impersonation has been set to `tsreader` in the ACLS we get:
+
+```bash
+kubectl get clusterroles
+```
+
+```console
+Error from server (Forbidden): clusterroles.rbac.authorization.k8s.io is forbidden:
+User "user@mail.com" cannot list resource "clusterroles" in API group "rbac.authorization.k8s.io" at the cluster scope
+```
+
+Very cool! for my little homelab this is not a big problem, but this feature becomes incredibly powerful when working with teams that need to do proper access control of the Kubernetes resources for
+different users and groups.
+
 ---
 
 ## The First Application
@@ -261,152 +340,46 @@ We are ready to deploy the first application into our cluster. For the first app
 to demonstrate that our cluster is running properly to deploy services. We will go for a classic [stateless application](https://kubernetes.io/docs/tutorials/stateless-application/),
 and what a better one than this blog itself!
 
-### Setting Up a CI Pipeline with Github Actions and Dagger
-
-To be able to define declarative our workload, we will need to create some Kubernetes resources that will be pushed into our repository for Argo to sync. More importantly,
-we do not have an image for the blog, so let's get started by creating a pipeline that will build our image when we push a tag in the blog repository.
-
-#### Initializing Dagger Module
-
-Let's start by initializing our dagger module this is where our CI code will live.
-
-```bash
-dagger init --sdk=go --name=blog-ci
-```
-
-The following will create the `.dagger` directory with some boiler plate, I choose [Go](https://go.dev/) for the sdk, but feel free
-to choose any language from their [available sdks](https://docs.dagger.io/getting-started/api/sdk/).
-
-#### Build CI
-
-In order to have a container image to use for our Kubernetes deployment, we need to have a pipeline
-that will build and publish the container image. Let's start with the build.
-
-```go {filename=".dagger/main.go"}
-// Build container from Dockerfile
-func (m *BlogCi) BuildFromDockerfile(
-	// +defaultPath="/"
-	source *dagger.Directory,
-	platform dagger.Platform,
-	tags ImageTags,
-	// +default="http://localhost:8080/"
-	base_url string,
-) *dagger.Container {
-	return dag.Container(dagger.ContainerOpts{Platform: platform}).
-		Build(source, dagger.ContainerBuildOpts{
-			BuildArgs: []dagger.BuildArg{
-				dagger.BuildArg{Name: "BASE_URL", Value: base_url},
-				dagger.BuildArg{Name: "GIT_SHA", Value: tags.SHA},
-				dagger.BuildArg{Name: "VERSION", Value: tags.Version},
-			},
-		}).
-		WithLabel("org.opencontainers.image.created", time.Now().UTC().Format(time.RFC3339))
-}
-```
-
-We define the `BuildFromDockerfile` that takes some parameters:
-
-- `source`: the directory where the Dockerfile is located
-- `platform`: the specific platform variant, i.e, linux/amd64
-- `tags`: A struct that contains both semantic version and github sha
-- `base_url`: Hugo specific base url for the website
-
-This will return a dagger container correctly tagged and ready to be published to a container registry.
-
-#### Publish CI
-
-Now, that we have a dagger function that will built a container from us, we can publish that container
-by providing the specified parameters.
-
-```go {filename=".dagger/main.go", linenos=true, hl_lines=["26-30"]}
-// Publish Docker image to registry
-func (m *BlogCi) PublishImage(ctx context.Context, name string,
-	// +default="latest"
-	version string,
-	sha string,
-	// +default="ttl.sh"
-	registry string,
-	username string,
-	password *dagger.Secret,
-	// +defaultPath="/"
-	source *dagger.Directory,
-) (string, error) {
-
-	platforms := []dagger.Platform{
-		"linux/amd64",
-		"linux/arm64",
-	}
-	platformVariants := make([]*dagger.Container, 0, len(platforms))
-	for _, platform := range platforms {
-		platformVariants = append(platformVariants, m.BuildFromDockerfile(source, platform, ImageTags{Version: version, SHA: sha}, "http://localhost:8080/"))
-	}
-
-	imageName := fmt.Sprintf("%s/%s/%s:%s", registry, username, name, version)
-	ctr := dag.Container()
-
-	if registry != "ttl.sh" {
-		ctr = ctr.WithRegistryAuth(registry, username, password)
-	} else {
-		imageName = fmt.Sprintf("%s/%s-%.0f", registry, name, math.Floor(rand.Float64()*10000000))
-	}
-
-	return ctr.Publish(ctx, imageName, dagger.ContainerPublishOpts{PlatformVariants: platformVariants})
-}
-```
-
-The logic from line 26-30 help us test the pipeline locally by publishing the container image to [ttl.sh](https://ttl.sh/),
-and if we provide a different registry such as **ghcr.io** or **dockerhub**, it will apply the registry auth.
-
-#### Finishing the pipeline with Github Actions
-
-Lastly, we can wrap our dagger call and have a simple github action that will run when we publish a tag as follows:
-
-```yaml {filename=".github/workflows/publish.yaml"}
-name: Publish Blog Image
-
-on:
-  push:
-    tags:
-      - "**"
-jobs:
-  publish:
-    runs-on: ubuntu-24.04
-    permissions:
-      contents: read
-      packages: write
-    env:
-      NAME: kinho-blog
-      USERNAME: ${{github.repository_owner}}
-      SHA_TAG: ${{github.sha}}
-      SEMVER_TAG: ${{github.ref_name}}
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          submodules: true
-          fetch-depth: 0
-      - uses: dagger/dagger-for-github@8.0.0
-
-      - name: Publish Blog Docker Image to ghcr
-        env:
-          PASSWORD: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          dagger call publish-image --registry=ghcr.io --name=$NAME --version=latest --sha=$SHA_TAG --username=$USERNAME --password=env:PASSWORD # latest
-          dagger call publish-image --registry=ghcr.io --name=$NAME --version=$SEMVER_TAG --sha=$SHA_TAG --username=$USERNAME --password=env:PASSWORD # semver
-          dagger call publish-image --registry=ghcr.io --name=$NAME --version=$SHA_TAG --sha=$SHA_TAG --username=$USERNAME --password=env:PASSWORD # sha
-```
+I made a full breakdown of the pipeline to build and publish this image using Dagger and Github actions that you can check here: [Link]({{<relref "building_cicd_with_dagger_and_gh_actions/index.md">}})
 
 ### Exposing the Blog
 
-All that's left is to define our blog resources to be applied by Argo.
+All that's left is to define our blog resources to be applied by Argo. In particular, we'll use the [Tailscale ingress](https://tailscale.com/kb/1439/kubernetes-operator-cluster-ingress#exposing-cluster-workloads-using-a-kubernetes-ingress) class to expose the service to the tailnet with a FQDN.
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: kinho-blog-ingress
+spec:
+  defaultBackend:
+    service:
+      name: kinho-blog-svc
+      port:
+        number: 80
+  ingressClassName: tailscale
+  tls:
+    - hosts:
+        - blog
+```
+
+Now, if we check our ingresses:
+
+```bash
+kubectl get ingress
+```
+
+```console
+NAMESPACE   NAME             CLASS       HOSTS   ADDRESS                   PORTS     AGE
+argocd      argocd-ingress   tailscale   *       argo.manakin-koi.ts.net   80, 443   2d
+```
 
 ---
 
 ## Wrapping up
 
-That's it for this entry! we started by migrating our existing Cilium deployment into a declarative GitOps workflow which led us to the introduction of ArgoCD. From there
-we adopted Argo's App of Apps pattern and setup Infisical as our secret management solution, and the tailscale operator. Lastly, we deployed the blog as the first
+That's it for this entry! I started by migrating our existing Cilium deployment into a declarative GitOps workflow which led me to the introduction of ArgoCD. From there
+I adopted Argo's App of Apps pattern, setup Infisical as our secret management solution, and the tailscale operator. Lastly, I deployed my blog as the first
 application, and expose it with the Tailscale Ingress!
 
 The cluster is now alive with the blog running! but there are many more improvements needed. First, we have deployed multiple applications but we have to monitor effectively

@@ -11,7 +11,7 @@ mermaid: true
 draft: true
 ---
 
-Welcome to another entry in the **Kinho's Homelab Series**. We’re picking up from the previous entry [Securing your Network with Tailscale]({{< relref "posts/" >}}). and today we continue by installing the Greek engineering helmsman ⎈, the almighty  
+Welcome to another entry in the **Kinho's Homelab Series**. We’re picking up from the previous entry [Securing my Network with Tailscale]({{< relref "hs_1_tailscale/index.md" >}}). and today we continue by installing the Greek engineering helmsman ⎈, the almighty  
 [**Kubernetes**](https://kubernetes.io/). This will serve as our main orchestration platform to run all the applications we want in our lab throughout the series.
 
 We will make some modifications to improve the base installation of k3s by adding the powerful [Cilium](https://cilium.io/) as our **CNI plugin and kube-proxy** replacement. Along the way, I'll discuss a few decisions regarding the configuration of all of this software.
@@ -34,7 +34,7 @@ the guts of Kubernetes, installing each component to create the control plane, s
 A more practical way of installing Kubernetes is with [kubeadm](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/), which makes the process much easier. You
 can follow along this fantastic [iximiuz labs tutorial](https://labs.iximiuz.com/tutorials/provision-k8s-kubeadm-900d1e53) if you’re interested in setting it up.
 
-All that said, in the previous entry we went over [grandma's laptop]({{<relref "bss_what_is_cidr/index.md">}}) specs, which are indeed very tight (until I get to bring a more powerful node as the control plane). Considering that, I needed a **lighter Kubernetes distribution**.  
+All that said, in the previous entry we went over [grandma's laptop]({{<relref "hs_1_tailscale/index.md">}}) specs, which are indeed very tight (until I get to bring a more powerful node as the control plane). Considering that, I needed a **lighter Kubernetes distribution**.  
 Enter [k3s](https://docs.k3s.io/), a fully compliant Kubernetes distribution by the [Rancher team](https://www.rancher.com/) that is great for edge, embedded, and of course our use case, **homelab**.
 
 ---
@@ -48,19 +48,16 @@ We want to prepare the installation of **Cilium** as our CNI, therefore, we'll a
 We can set up the options discussed in a unified yaml file, which we can pass to the k3s installation script. The configuration is as follows:
 
 ```k3sconfig.yaml
-node-ip: <your-tailscale-ip>
 flannel-backend: "none"
 disable-kube-proxy: true
 disable-network-policy: true
 disable:
   - traefik
   - servicelb
-tls-san:
-  - <your-tailscale-ip>
 cluster-init: true
 ```
 
-Note how I specify the `node-ip` and `tls-san` fields to use the Tailscale IP for the API server and generate a certificate. Another option we set is `cluster-init`, so that the cluster initializes with embedded `etcd` rather than the default SQLite. You can check
+Note how I specify the `cluster-init` field, so that the cluster initializes with embedded `etcd` rather than the default SQLite. You can check
 all the possible configuration options for the server [here](https://docs.k3s.io/cli/server).
 
 > [!NOTE]
@@ -84,11 +81,22 @@ sudo kubectl get no
 
 ```console
 NAME      STATUS   ROLES                AGE    VERSION
-sliffer   Ready    control-plane,etcd   0m     v1.34.3+k3s1
+sliffer   Ready    control-plane,etcd   0s     v1.34.3+k3s1
 ```
 
 Importantly, if we take a look at **coredns**, **local-path-provisioner**, and **metrics-server** running in the `kube-system` namespace they are in a **pending** state. That is because they rely on the CNI to start up.
 If you went with the default installation of k3s, everything should work. However, we will prepare **Cilium** to take over these components.
+
+```bash
+sudo kubectl get po -n kube-system
+```
+
+```console
+NAME                                      READY   STATUS    RESTARTS       AGE
+coredns-7f496c8d7d-pd7v9                  0/1     Pending   0              0s
+local-path-provisioner-578895bd58-v5vmk   0/1     Pending   0              0s
+metrics-server-7b9c9c4b9c-jgwz4           0/1     Pending   0              0s
+```
 
 ### Adding Worker Nodes (Optional)
 
@@ -101,13 +109,12 @@ sudo cat /var/lib/rancher/k3s/server/token
 Similar to how we set up our master, we specify the following configuration for our agent node:
 
 ```k3sagent.yaml
-node-ip: <your-worker-tailscale-ip>
 token: <your-k3s-token>
 server: https://<your-ip>:<your-port>
 ```
 
-> [!NOTE]
-> If you want to add **node labels** to easily identify certain nodes and give deployments node affinity. For example, to label a node as worker you can provide the following:
+> [!TIP]
+> If you want, you can add **node labels** to easily identify certain nodes and give deployments node affinity. For example, to label a node as worker you can provide the following:
 >
 > ```k3sagent.yaml
 > node-label:
@@ -138,7 +145,7 @@ sliffer   Ready    control-plane,etcd   3m     v1.34.3+k3s1
 
 ![CNCF Landscape Image Website](gallery/cncf_landscape.png "A small section of the entire CNCF landscape check more [here](https://landscape.cncf.io/?view-mode=grid)")
 
-The [CNCF Landscape](https://landscape.cncf.io/?view-mode=grid) can be intimidating with the large number of projects available that contribute to modern cloud computing in different categories, such as orchestration with the golden child **Kubernetes**, mature coordination and discovery with **coredns**, and continuous delivery systems that enable GitOps such as **Argo CD** and **Flux**. It can be really easy to spend a whole day scrolling through the different projects and learning about their use cases.
+The [CNCF Landscape](https://landscape.cncf.io/?view-mode=grid) can be intimidating with the large number of projects available that contribute to modern cloud computing in different categories, such as orchestration with the golden child **Kubernetes**, mature coordination and discovery with **CoreDNS**, and continuous delivery systems that enable GitOps such as **Argo CD** and **Flux**. It can be really easy to spend a whole day scrolling through the different projects and learning about their use cases.
 
 In the past, I knew about **Cilium**, but I did not fully understand what it did, partly because I was new to Kubernetes and partly because I had not seen how its functionalities fit into the larger landscape. Now, let's get practical about why we want to configure **Cilium** in our k3s cluster.
 
