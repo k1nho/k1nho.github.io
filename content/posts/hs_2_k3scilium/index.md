@@ -1,12 +1,12 @@
 ---
 title: "Kinho's Homelab Series - Orchestration Platform and Networking (K3s + Cilium)"
-pubDate: 2026-02-12
+pubDate: 2026-01-13
 Description: "Let's build a mini homelab! In this entry, I install Kubernetes and do a few modifications to introduce Cilium for networking, observability and security."
 Categories: ["DevOps", "Networking", "Platform Engineering", "Homelab Series"]
 Tags: ["Homelab Series", "DevOps", "Networking"]
 cover: "gallery/homelabs_cover2.png"
 images:
-  - "gallery/homelabs_cover2.png"
+  - "gallery/homelab_in2.png"
 mermaid: true
 draft: true
 ---
@@ -20,7 +20,7 @@ We will make some modifications to improve the base installation of k3s by addin
 
 # 2. Orchestration Platform and Networking (K3s + Cilium)
 
-![Homelab Series 2](gallery/homelabs_cover2.png)
+![Homelab Series 2](gallery/homelab_in2.png)
 
 ---
 
@@ -128,7 +128,7 @@ kubectl get no
 
 ```console
 NAME      STATUS   ROLES                AGE    VERSION
-kuriboh   Ready    <none>               1m     v1.34.3+k3s1
+kuriboh   Ready    worker               1m     v1.34.3+k3s1
 sliffer   Ready    control-plane,etcd   3m     v1.34.3+k3s1
 ```
 
@@ -280,19 +280,17 @@ graph TD
             KubeletW["Kubelet"]
             subgraph CiliumW["Cilium"]
                 CiliumDS["Cilium DaemonSet"]
+                CiliumEnvoy["Cilium Envoy"]
             end
         end
 
         subgraph Master["Control plane"]
-            KubeletM["Kubelet"]
-            API["Kubernetes API Server"]
-            Scheduler["Kube-Scheduler"]
-            Controller["Controller Manager"]
-            ETCD["etcd (embedded)"]
+            K3scomponets["Kubernetes Control Plane Components"]
             subgraph CiliumM["Cilium"]
-                CiliumDaemon["Cilium DaemonSet"]
-                CiliumEnvoy["Cilium Envoy"]
+                CiliumDSM["Cilium DaemonSet"]
+                CiliumEnvoyM["Cilium Envoy"]
                 CiliumOperator["Cilium Operator"]
+                Hubble["Hubble"]
             end
         end
     end
