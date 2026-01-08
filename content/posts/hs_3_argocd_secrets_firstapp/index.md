@@ -1,12 +1,12 @@
 ---
 title: "Kinho's Homelab Series - GitOps, Secrets, and First Application"
-pubDate: 2026-03-12
+pubDate: 2026-01-20
 Description: "Let's build a mini homelab! In this entry, we move into the GitOps workflow with ArgoCD, explore secrets management, and deploy our first app!"
 Categories: ["DevOps", "Networking", "Platform Engineering", "Homelab Series"]
 Tags: ["Homelab Series", "DevOps", "GitOps", "Networking"]
 cover: "gallery/homelabs_cover3.png"
 images:
-  - "gallery/homelabs_cover3.png"
+  - "gallery/homelab_in3.png"
 mermaid: true
 draft: true
 ---
@@ -23,7 +23,7 @@ In this entry, I will introduce [Argo CD](https://argo-cd.readthedocs.io/en/stab
 
 # 3. GitOps, Secrets, and First Application
 
-![Homelab Series 2](gallery/homelabs_cover3.png)
+![Homelab Series 3](gallery/homelab_in3.png)
 
 ---
 
