@@ -132,7 +132,12 @@ we have **usual suspects**[^1] to choose from, I discovered [Infisical](https://
 
 ![Infisical Logo](gallery/infisical_logo.png)
 
-Through this series, I like to consider this three as my bastions for choosing a particular software: **the project is open source, has a generous free tier, and can, if one chooses to, be self-hosted!**
+Through this series, I like to consider this three as my bastions for choosing a particular software:
+
+- **The project is open source**
+- **It has a generous free tier**
+- **If one chooses to, it can be self-hosted!**
+
 Infisical meets this criteria, and when I consider that they have both a [Kubernetes Operator](https://infisical.com/docs/integrations/platforms/kubernetes/overview) and an [SDK](https://infisical.com/docs/sdks/overview)
 it ends up fullfilling the other requirements: **sync secrets into our cluster**, and **manage them with an API**. Let's define our Argo App to deploy the infisical secrets operator.
 
@@ -186,7 +191,7 @@ The [tailscale kubernetes operator](https://tailscale.com/kb/1236/kubernetes-ope
 - Exposing a tailnet service to the Kubernetes cluster (Egress)
 
 There are many more possibilities as listed in [the official documentation](https://tailscale.com/kb/1236/kubernetes-operator), for this case we are interested
-in **exposing our cluster workloads to the tailnet**, that is, using it as ingress. As usual, we will configure our tailscale operator as an ArgoCD app to deploy
+in **exposing our cluster workloads to the tailnet**, that is, using it as ingress. I'll also take a look at **securing access to the control plane using an API server proxy** to cover the remote case. As usual, we will configure our tailscale operator as an ArgoCD app to deploy
 the Helm chart into the cluster with some custom values.
 
 ```yaml {filename="argo/tailscale.yaml"}
@@ -394,9 +399,10 @@ for provisioning storage, backup, and a disaster recovery strategy becomes impor
 ## Resources
 
 - [What is GitOps ?](https://about.gitlab.com/topics/gitops/)
-- [Argo CD Documentation](https://docs.k3s.io/)
+- [Argo CD Documentation](https://argo-cd.readthedocs.io/en/stable/)
 - [Infisical Kubernetes Operator](https://infisical.com/docs/integrations/platforms/kubernetes/overview)
 - [Tailscale Kubernetes Operator](https://tailscale.com/kb/1236/kubernetes-operator)
-- [Cilium](https://cilium.io/)
+- [Exposing Cluster Workloads to the Tailnet Using Ingress](https://tailscale.com/kb/1439/kubernetes-operator-cluster-ingress#exposing-cluster-workloads-using-a-kubernetes-ingress)
+- [Securing Access to the Control Plane with Tailscale](https://tailscale.com/kb/1437/kubernetes-operator-api-server-proxy)
 
 [^1]: [Azure Vault](https://azure.microsoft.com/en-us/products/key-vault), [AWS Secret Manager](https://aws.amazon.com/secrets-manager/), [GCP Secret Manager](https://cloud.google.com/security/products/secret-manager)
