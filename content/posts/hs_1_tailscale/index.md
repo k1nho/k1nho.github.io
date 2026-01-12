@@ -155,7 +155,7 @@ to a local service** running on my tailnet, and experiment with [funnels](https:
 
 With the foundation in place, the next step will be our installation of **Kubernetes** to start experimenting and slowly build up services. There is still a lot of fun ahead, but we are off to a great start.
 
-**Next: TBD**
+**Next:** [Kinho's Homelab Series - Orchestration Platform and Networking (K3s + Cilium)]({{< relref "hs_2_k3scilium/index.md" >}})
 
 ## Resources
 
