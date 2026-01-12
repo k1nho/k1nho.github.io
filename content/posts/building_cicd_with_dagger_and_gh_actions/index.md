@@ -28,6 +28,8 @@ Let's explore how we can create this steps using the Dagger Go SDK.
 
 ## Daggerizing the Pipeline
 
+![Dagger Logo](gallery/dagger.png)
+
 ### Initializing Dagger Module
 
 Let's start by initializing our dagger module this is where our CI code will live.

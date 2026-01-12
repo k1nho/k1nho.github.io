@@ -2,13 +2,12 @@
 title: "Kinho's Homelab Series - Orchestration Platform and Networking (K3s + Cilium)"
 pubDate: 2026-01-12
 Description: "Let's build a mini homelab! In this entry, I install Kubernetes and do a few modifications to introduce Cilium for networking, observability and security."
-Categories: ["DevOps", "Networking", "Platform Engineering", "Homelab Series"]
+Categories: ["DevOps", "Networking", "Platform Engineering"]
 Tags: ["Homelab Series", "DevOps", "Networking"]
 cover: "gallery/homelabs_cover2.png"
 images:
   - "gallery/homelab_in2.png"
 mermaid: true
-draft: true
 ---
 
 Welcome to another entry in the **Kinho's Homelab Series**. We're picking up where we left off in the previous entry [**Securing my Network with Tailscale**]({{< relref "hs_1_tailscale/index.md" >}}),
@@ -164,7 +163,7 @@ In the previous section, we purposely disabled most of the k3s built-ins related
 
 ![eBPF logo](gallery/ebpf_logo.png)
 
-Cilium is based on [eBPF](https://ebpf.io/), which can **dynamically program the kernel**. This enables more performant routing that is not based on traditional iptables, as is the case with **kube-proxy**. Its **eBPF hashmaps** enable constant-time performance, unlike the linear scans used by iptables. This means that as the number of services grows, performance stays consistent.
+Cilium is based on [eBPF](https://ebpf.io/), a powerful technology that can **dynamically program the kernel**. This enables more performant routing that is not based on traditional iptables, as is the case with **kube-proxy**. Its **eBPF hashmaps** enable constant-time performance, unlike the linear scans used by iptables. This means that as the number of services grows, performance stays consistent.
 
 Not only that, but because Cilium integrates neatly with the Linux kernel, it provides **network observability and security policies** for our cluster.
 
@@ -208,14 +207,16 @@ echo "export KUBECONFIG=$HOME/.kube/config" >> $HOME/.bashrc
 source $HOME/.bashrc
 ```
 
-We will now specify an `IP` and `PORT` for our installation. For the port, we can use the [default API server port](https://kubernetes.io/docs/reference/networking/ports-and-protocols/#control-plane), and for the IP, select the one you configured in the previous steps. We can install Cilium with the following command:
+We will now specify an `IP` and `PORT` for our installation. For the port, we can use the [default API server port](https://kubernetes.io/docs/reference/networking/ports-and-protocols/#control-plane). For the IP, configure a static IP for this machine at your gateway, then use that IP here. We can install Cilium with the following command:
 
 ```bash
-IP=<YOUR-NODE-IP>
+IP=<YOUR-IP>
 PORT=<YOUR-PORT>
 cilium install --set k8sServiceHost=${IP} \
 --set k8sServicePort=${PORT} \
 --set kubeProxyReplacement=true \
+--set hubble.relay.enabled=true \
+--set hubble.ui.enabled=true \
 --set ipam.operator.clusterPoolIPv4PodCIDRList="10.42.0.0/16"
 ```
 
@@ -244,7 +245,12 @@ cilium status --wait
 
 Finally, if we check our previous core components under the `kube-system` namespace that were in pending state:
 
-![Terminal shows the result of running kubectl get po -A](gallery/kubesystem_pods.png)
+```console
+NAME                                      READY   STATUS    RESTARTS       AGE
+coredns-7f496c8d7d-pd7v9                  1/1     Running   0              3m
+local-path-provisioner-578895bd58-v5vmk   1/1     Running   0              3m
+metrics-server-7b9c9c4b9c-jgwz4           1/1     Running   0              3m
+```
 
 ### Network Traffic Observability with Hubble
 
