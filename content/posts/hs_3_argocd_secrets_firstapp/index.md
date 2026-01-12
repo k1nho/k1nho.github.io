@@ -334,7 +334,7 @@ Error from server (Forbidden): clusterroles.rbac.authorization.k8s.io is forbidd
 User "user@mail.com" cannot list resource "clusterroles" in API group "rbac.authorization.k8s.io" at the cluster scope
 ```
 
-Very cool! for my little homelab this is not a big problem, but this feature becomes incredibly powerful when working with teams that need to do proper access control of the Kubernetes resources for
+Very cool! for my little homelab this is just solves remote access to the cluster, but this feature becomes incredibly powerful when working with teams that need to do proper access control of the Kubernetes resources for
 different users and groups.
 
 ---
