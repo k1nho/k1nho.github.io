@@ -8,6 +8,7 @@ cover: "gallery/homelabs_cover2.png"
 images:
   - "gallery/homelab_in2.png"
 mermaid: true
+draft: true
 ---
 
 Welcome to another entry in the **Kinho's Homelab Series**. We're picking up where we left off in the previous entry [**Securing my Network with Tailscale**]({{< relref "hs_1_tailscale/index.md" >}}),
