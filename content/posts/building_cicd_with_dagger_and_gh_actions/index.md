@@ -1,30 +1,28 @@
 ---
 title: "Building a CI Pipeline for Container Images with Dagger and GitHub Actions"
-pubDate: 2026-01-20
-Description: "There comes a time where a container image is needed, and with that a pipeline. Let's build our own with Dagger!"
+pubDate: 2026-02-08
+Description: "There comes a time when a container image is needed, and with that an automatic pipeline. Let's build our own with Dagger and Github Actions!"
 Categories: ["CI/CD", "Platform Engineering", "Containers"]
 Tags: ["CI/CD", "DevOps", "Containers", "Go"]
 cover: "gallery/cicd_dagger_cover.png"
 images:
   - "gallery/cicd_dagger_cover.png"
-mermaid: true
-draft: true
 ---
 
-Recently, I've been working on my homelab, and one thing that eventually becomes essential is having **reliable pipelines for building, scanning, and publishing container images**.
+Recently, I've been hacking away in my [homelab](https://kincodes.com/tags/homelab-series/), and when it came time to deploy my blog, one thing became essential: **having a reliable pipeline for building, scanning, and publishing container images**.
 Whether you're developing custom applications from scratch or creating hardened versions of existing images to strengthen their security posture, you need a robust build process you can trust.
 
-While there are plenty of GitHub Actions in the marketplace that can handle this, there's something uniquely powerful about owning a custom pipeline where you control every piece without drowning in YAML hell. Even better, what if you could **define your entire pipeline in code and test it locally without waiting for CI runners**? Enter [Dagger](https://dagger.io/). With Dagger, your local pipeline runs are identical to what executes in CI, giving you fast feedback loops and the confidence that what works on your machine will work in production.
+While there are plenty of [GitHub Actions in the marketplace](https://github.com/marketplace?query=build+and+push+docker+image&type=actions) that can handle this, there's something uniquely powerful about owning a custom pipeline where you control every piece without drowning in YAML hell abstraction. Even better, what if you could **define your entire pipeline in code and test it locally**? Enter [Dagger](https://dagger.io/). With Dagger, your local pipeline runs are identical to what executes in CI, giving you fast feedback loops to iterate on the CI without waiting for runners.
 
-In this guide, I'll walk you through setting up a complete pipeline that **builds a container image, scans it for security vulnerabilities, and publishes it to a registry of your choice**, all using Go!
+In this guide, I'll walk through setting up a complete pipeline that **builds a container image, scans it for security vulnerabilities, and publishes it to a registry of your choice**, all using Go!
 
 ## The Stage
 
-I wanted to have a container image for the blog that will be deployed on my tailnet via Argo CD. The app here is a simple static Hugo blog running on an nginx base.
+I wanted to have a container image for my blog that will be deployed on my tailnet via Argo CD. The app here is a simple static Hugo blog running on an nginx base.
 
-In order to have a container image to use for our Kubernetes deployment, we need to have a pipeline. Normally, this pipeline can be as many **n steps**
-as you deemed necessary. However, usually there are 3 fundamental steps that should always be present when creating the pipeline: **build, security scanning, and publish**.
-Let's explore how we can create this steps using the Dagger Go SDK.
+To create a container image for our Kubernetes deployment, we need to have a pipeline. Normally, this pipeline can be as many steps
+as you deemed necessary. However, usually there are 3 fundamental steps that are essential when creating a CI/CD pipeline: **build, security scanning, and publish**.
+Let's explore how we can create these steps using the Dagger Go SDK.
 
 ## Daggerizing the Pipeline
 
@@ -43,7 +41,7 @@ to choose any language from their [available sdks](https://docs.dagger.io/gettin
 
 ### Build CI
 
-Let's start with the build step. In here we generally want to specify the source of our project, the platform that we building our container image for, and
+Let's start with the build step. Here, we generally want to specify the source of our project, the platform that we are building our container image for, and
 the tags we want to apply.
 
 ```go
@@ -94,16 +92,16 @@ Note that I pass in the build arguments slice to our container such that we appl
 
 ![Trivy logo](gallery/trivy.svg)
 
-Now that we have a way to return our container image, we want to make sure that it does not contain any critical or high vunerabilities. This step is often overlooked,
-but in this modern era of **AI generated code**, and with [big players in image hardening going close source](https://thenewstack.io/broadcom-ends-free-bitnami-images-forcing-users-to-find-alternatives/),
+Now that we have a way to return our container image, we want to make sure that it does not contain any critical or high vulnerabilities. This step is often overlooked,
+but in this modern era of **AI-generated code**, and with [big players in image hardening going closed source](https://thenewstack.io/broadcom-ends-free-bitnami-images-forcing-users-to-find-alternatives/),
 we certainly want to be more conscious of having a **security first posture**.
 
 We'll use [trivy](https://trivy.dev/), a fantastic security scanner to find CVEs and misconfigurations in our container image. In the case we detect a critical or high
 vunerability in our image, we will halt the pipeline by returning an error.
 
 ```go
-// Scan Image Built for Vunerabilities
-func (m *BlogCi) ScanVunerabilities(ctx context.Context, ctr *dagger.Container) error {
+// Scan Image Built for Vulnerabilities
+func (m *BlogCi) ScanVulnerabilities(ctx context.Context, ctr *dagger.Container) error {
 
 	tarball := ctr.AsTarball()
 
@@ -123,7 +121,7 @@ func (m *BlogCi) ScanVunerabilities(ctx context.Context, ctr *dagger.Container) 
 		return fmt.Errorf("critical/high vunerabilities detected: %s", err.Error())
 	}
 
-	fmt.Printf("Trivy scan success - no critical or high vunerabilites found\n%s", output)
+	fmt.Printf("Trivy scan success - no critical or high vulnerabilities found\n%s", output)
 	return nil
 }
 
@@ -165,7 +163,7 @@ func (m *BlogCi) PublishImage(ctx context.Context,
 	platformVariants := make([]*dagger.Container, 0, len(platforms))
 	for _, platform := range platforms {
 		ctr := m.BuildFromDockerfile(source, platform, ImageTags{Version: version, SHA: sha}, url)
-		if err := m.ScanVunerabilities(ctx, ctr); err != nil {
+		if err := m.ScanVulnerabilities(ctx, ctr); err != nil {
 			return "", err
 		}
 		platformVariants = append(platformVariants, ctr)
@@ -184,11 +182,11 @@ func (m *BlogCi) PublishImage(ctx context.Context,
 }
 ```
 
-The logic from line 38-42 help us test the pipeline locally by publishing the container image to [ttl.sh](https://ttl.sh/),
-and if we provide a different registry such as **ghcr.io** or **dockerhub**, it will apply the registry auth. This allow us to have faster feedback loops of the CI
+The logic from **lines 38-42** helps us test the pipeline locally by publishing the container image to [ttl.sh](https://ttl.sh/),
+and if we provide a different registry such as **ghcr.io** or **dockerhub**, it will apply the registry auth. This allows us to have faster feedback loops of the CI
 without having to go through the github runners.
 
-### Finishing the pipeline with Github Actions
+### Finishing the pipeline with GitHub Actions
 
 Lastly, we can wrap our dagger call and have a simple github action that will run when we publish a tag as follows:
 
@@ -229,5 +227,5 @@ jobs:
           dagger call publish-image --registry=ghcr.io --name=$NAME --version=$SHA_TAG --sha=$SHA_TAG --base-url=$BASE_URL --username=$USERNAME --password=env:PASSWORD # sha```
 ````
 
-The action will trigger our full dagger pipeline every time I create a new tag. Now, with the pipeline set I can push new versions of my blog with a tag, and I can
+The action will trigger our full Dagger pipeline every time I create a new tag. Now, with the pipeline set I can push new versions of my blog with a tag, and I can
 use the generated container image in my kubernetes deployments, very cool!
