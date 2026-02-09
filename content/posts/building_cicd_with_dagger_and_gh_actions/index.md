@@ -6,7 +6,7 @@ Categories: ["CI/CD", "Platform Engineering", "Containers"]
 Tags: ["CI/CD", "DevOps", "Containers", "Go"]
 cover: "gallery/cicd_dagger_cover.png"
 images:
-  - "gallery/cicd_dagger_cover.png"
+  - "gallery/cicd_dagger_in.png"
 ---
 
 Recently, I've been hacking away in my [homelab](https://kincodes.com/tags/homelab-series/), and when it came time to deploy my blog, one thing became essential: **having a reliable pipeline for building, scanning, and publishing container images**.
