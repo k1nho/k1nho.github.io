@@ -16,6 +16,8 @@ While there are plenty of [GitHub Actions in the marketplace](https://github.com
 
 In this guide, I'll walk through setting up a complete pipeline that **builds a container image, scans it for security vulnerabilities, and publishes it to a registry of your choice**, all using Go!
 
+![CICD with Dagger](gallery/cicd_dagger_in.png)
+
 ## The Stage
 
 I wanted to have a container image for my blog that will be deployed on my tailnet via Argo CD. The app here is a simple static Hugo blog running on an nginx base.
