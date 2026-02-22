@@ -334,7 +334,7 @@ We now have our own **orchestration platform**, but it's looking a little empty.
 
 - **Previous:** [Kinho's Homelab Series - Securing my Network with Tailscale]({{< relref "hs_1_tailscale/index.md" >}})
 
-- **Next: TBD**
+- **Next:** [Kinho's Homelab Series - GitOps, Secrets, and First Applications]({{< relref "hs_3_argocd_secrets_firstapp/index.md">}})
 
 ## Resources
 
