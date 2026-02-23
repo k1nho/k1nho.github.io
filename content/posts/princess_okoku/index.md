@@ -3,7 +3,7 @@ title: "Winning a Gamejam in 24 hours: The Creation of Princess Okoku"
 pubDate: 2023-04-08
 Description: "Can I win a gamejam in 24 hours using webdev technologies? In this article, I describe how I managed to do just that using React, and ChatGPT for Rosebud AI Cute Gamejam"
 Categories: ["Game Dev", "Hackathon", "Web Dev", "TypeScript"]
-Tags: ["Game Dev", "Web Dev", "Learning", "Story"]
+Tags: ["Game Dev", "Web Dev", "Story"]
 cover: "gallery/princess_okoku_cover.png"
 images:
   - "gallery/princess_okoku_cover.png"
