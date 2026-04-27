@@ -88,7 +88,7 @@ and eventually became an [incubated project](https://landscape.cncf.io/?item=app
 As usual, we'll create our Argo `Application` custom resource to install the CNPG operator via GitOps.
 
 > [!NOTE]
-> If you missed the previous entry where we go over ArgoCD you can check it [here]({{< relref "hs_2_k3scilium/index.md">}})
+> If you missed the previous entry where we go over ArgoCD you can check it [here]({{< relref "hs_3_argocd_secrets_firstapp/index.md">}})
 
 ```yaml {filename="argo/cnpg.yaml"}
 apiVersion: argoproj.io/v1alpha1
@@ -308,6 +308,7 @@ spec:
 <summary>How to add secrets?</summary>
 
 For a full rundown on how to add secrets, check the last [entry]({{< relref "hs_3_argocd_secrets_firstapp/index.md">}})!
+
 </details>
 
 We also need to add the necessary secrets which will be picked by our deployment via `linkding-env-vars`. Namely, we provide
@@ -354,7 +355,7 @@ In this resource, we define the following:
 
 For a more comprehensive guide on all the knobs of the Cluster custom resource, check out the [examples](https://cloudnative-pg.io/docs/1.28/samples) and the official [specification](https://cloudnative-pg.io/docs/1.28/cloudnative-pg.v1#clusterspec).
 
-After, our ArgoCD workflow will trigger and sync the resources into the cluster. Otherwise, you can apply directly using kustomize.
+After, ArgoCD will trigger and sync the resources in Git into the cluster. Otherwise, you can apply directly using kustomize.
 
 ```bash
 kubectl apply -k apps/linkding
@@ -459,6 +460,24 @@ linkding-db-3   Bound    pvc-5c8d1a2f-6e73-4f0b-b9a4-3d2f7c6e8b95   1Gi        R
 Indeed, we see three `PersistentVolumeClaim` created associated with our three databases (primary, and two replicas). Notice here that the storage class is simply Rancher's [local-path](https://github.com/rancher/local-path-provisioner) that comes as part of the k3s installation,
 but the same will happen with whatever `StorageClass` you select like [Longhorn](https://longhorn.io/) or [Proxmox CSI](https://github.com/sergelogvinov/proxmox-csi-plugin)
 
+### Login into Linkding
+
+Let's go ahead and use Linkding. If you have installed with Tailscale ingress you can simply go to the FQDN. Otherwise, you can port-forward the service as follows:
+
+```bash
+kubectl port-forward svc/linkding-svc 9090:9090 -n linkding
+```
+
+![Linkding Login Page](gallery/linkding_login.png "Linkding Login Page")
+
+We now see the linkding login page, and we can enter the previously stored **LD_SUPERUSER_NAME**, and **LD_SUPERUSER_PASSWORD**.
+
+### The Linkding Application
+
+Now that I have linkding, I'll start adding some bookmarks along with their tags. After a few of those are added the homepage should look something like this.
+
+![Linkding Home Page](gallery/linkding.png "Linkding Home Page")
+
 ### Connecting to the PostgreSQL Primary
 
 We can use the plugin as well to connect to our PostgreSQL primary instance with the following:
@@ -467,13 +486,15 @@ We can use the plugin as well to connect to our PostgreSQL primary instance with
 kubectl cnpg psql linkding-db -n linkding
 ```
 
-### Login into Linkding
+We can run a simple select to count the records inserted on the bookmark table:
 
-![Linkding Login Page](gallery/linkding_login.png "Linkding Login Page")
+```psql
+SELECT count(*) FROM bookmark_bookmarks;
+```
 
-### The Linkding Application
-
-![Linkding Home Page](gallery/linkding.png "Linkding Home Page")
+```terminal
+93
+```
 
 ## Wrapping up
 
