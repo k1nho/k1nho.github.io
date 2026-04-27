@@ -420,7 +420,7 @@ monitor the resource consumption of our services. Moreover, we haven't had the n
 for provisioning storage, backup, and a disaster recovery strategy becomes important to keep data safe. In the next entry, we'll explore a few of these!
 
 - **Previous:** [Kinho's Homelab Series - Orchestration Platform and Networking (K3s + Cilium)]({{< relref "hs_2_k3scilium/index.md">}})
-- **Next:** TBD
+- **Next:** [Kinho's Homelab Series - PostgreSQL Database and Linkding]({{<relref "hs_4_cnpg_and_linkding/index.md">}})
 
 ---
 
