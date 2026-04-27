@@ -1,7 +1,7 @@
 ---
 title: "Kinho's Homelab Series - PostgreSQL Database and Linkding"
 pubDate: 2026-05-20
-Description: "Let's build a mini homelab! In this entry, we explore the cloud-native postgres operator for managing postgres clusters and run the Linkding application!"
+description: "Let's build a mini homelab! In this entry, we explore the cloud-native PostgreSQL operator for managing PostgreSQL clusters and run the Linkding application!"
 Categories: ["DevOps", "Networking", "Platform Engineering", "Databases"]
 Tags: ["Homelab Series", "DevOps", "GitOps", "Databases"]
 cover: "gallery/homelabs_cover4.png"
@@ -15,13 +15,13 @@ Welcome to another entry in **Kinho's Homelab Series**! In the last [entry]({{<r
 infrastructure by adopting the GitOps workflow with Argo CD. So far, I have deployed the blog which belongs in the category of [stateless applications](https://kubernetes.io/docs/tutorials/stateless-application/).
 It is time to kick it up a notch by running [stateful applications](https://kubernetes.io/docs/tutorials/stateful-application/).
 
-In this entry, I'll go over running **PostgreSQL in Kubernetes**, and setup **the Linkding bookmark manager** application to use it. Along the way, I discuss why you want
+In this entry, I'll go over running **PostgreSQL in Kubernetes**, and set up **the Linkding bookmark manager** application to use it. Along the way, I discuss why you want
 to avoid the usual _recommended_ way of running stateful applications in the form of the **StatefulSet**, and opt for a more reliable and proven management, in this case of
 PostgreSQL, with the use of an **operator**.
 
 ---
 
-# 3. PostgreSQL databases and Linkding
+# 4. PostgreSQL Databases and Linkding
 
 ![Homelab Series 4](gallery/homelab_in4.png)
 
@@ -34,12 +34,11 @@ that need persistent storage:
 
 > A StatefulSet runs a group of Pods, and maintains a sticky identity for each of those Pods. This is useful for managing applications that need persistent storage or a stable, unique network identity.
 
-However, Kubernetes has always been know as a **container orchestrator**, although I like to think about it as [data types for your infrastructure](), and by the nature
-of containers therefore ephemeral, meaning that it contradicts the very own nature of storage, that is, being persistent. The challenge has sparked the debate since the birth of Kuberentes of whether or
-not databases should even be ran on Kubernetes in the first place. This conumdrum has resulted in people usually looking for alternatives such as migrating the database service to a dedicated server outside of the k8s cluster, or
-opt-out for a cloud manage service for an specific database.
+However, Kubernetes has always been known as a **container orchestrator**, although I like to think about it as [data types for your infrastructure](), and by the nature
+of containers therefore ephemeral, meaning that it contradicts the very own nature of storage, that is, being persistent. The challenge has sparked the debate since the birth of Kubernetes of whether or
+not databases should even be run on Kubernetes in the first place. This conundrum has resulted in people usually looking for alternatives such as migrating the database service to a dedicated server outside of the k8s cluster, or opting out for a cloud-managed service for a specific database.
 
-The conclusion should simply be to avoid databases in Kubernetes at all costs, right? Recently, while watching the talk [Why are we still talking about containers?](https://www.youtube.com/watch?v=x1t2GPChhX8) by the distinguish Google engineer Kelsey Hightower,
+The conclusion should simply be to avoid databases in Kubernetes at all costs, right? Recently, while watching the talk [Why are we still talking about containers?](https://www.youtube.com/watch?v=x1t2GPChhX8) by the distinguished Google engineer Kelsey Hightower,
 a question comes up:
 
 > Should we run databases in Kubernetes?
@@ -48,7 +47,7 @@ Kelsey's answer goes something like this:
 
 > It used to be no, because I watched people lose their data. My guess is people are still losing their data! but the tools are just so much better: **volume snapshotting, restoring, and replication**.
 
-Yes, containers are ephemeral, yes, data can be easily loss if you run StatefulSets blindly. Then, is it even possible to reach a solution that would enable us easily have **the tooling** in place
+Yes, containers are ephemeral, yes, data can be easily lost if you run StatefulSets blindly. Then, is it even possible to reach a solution that would enable us to easily have **the tooling** in place
 such that it combines the knowledge of Kubernetes patterns, and deep expertise of database management. Fortunately, with Kubernetes adoption across multiple cloud providers and on-premise, many
 have set out the task to do just that by using the powerful: **operator pattern**.
 
@@ -60,16 +59,16 @@ One of the most powerful, if not the most critical, pattern in Kubernetes is [th
 
 > The operator pattern aims to capture the key aim of a human operator who is managing a service or set of services. Human operators who look after specific applications and services have deep knowledge of how the system ought to behave, how to deploy it, and how to react if there are problems.
 
-Wow isn't that just what we would like to have for our databases! human operators with deep knowledge of how a system out to behave, except there is no human and it is automated
+Wow, isn't that just what we would like to have for our databases! Human operators with deep knowledge of how a system ought to behave, except there is no human and it is automated
 to handle the scenarios where things eventually can go wrong. To that end, the operator pattern has emerged as the best way to manage databases in Kubernetes.
 
 ### StatefulSet vs Operator
 
-We discuss the operator pattern, but why would you just choose it over the StatefulSet primitive? For starters running databases is not a one and done job, it requires careful failover logic whenever your primary fails for
-that it must detect failure, promote a replica, and update services, this is non-trivial and can be easy to get wrong. Moreover, replication is manual you must account for replication slots, WAL streaming configuration to name a few. Lastly, and perhaps most
-importantly there is not an automated way to do backups, or recovery.
+We discuss the operator pattern, but why would you choose it over the StatefulSet primitive? For starters, running databases is not a one and done job, it requires careful failover logic whenever your primary fails;
+that it must detect failure, promote a replica, and update services; this is non-trivial and can be easy to get wrong. Moreover, replication is manual: you must account for replication slots, WAL streaming configuration, to name a few. Lastly, and perhaps most
+importantly, there is not an automated way to do backups, or recovery.
 
-Even in the simple of cases such as role-aware services, you can see how running a simple StatefulSet does not account for the myriad of possibilities that somebody must perform to
+Even in the simplest of cases such as role-aware services, you can see how running a simple StatefulSet does not account for the myriad of possibilities that somebody must consider to
 keep a database running, let alone in an ephemeral by nature environment as it is the case with Kubernetes.
 
 ---
@@ -89,7 +88,7 @@ and eventually became an [incubated project](https://landscape.cncf.io/?item=app
 As usual, we'll create our Argo `Application` custom resource to install the CNPG operator via GitOps.
 
 > [!NOTE]
-> If you missed the previous entry were we go over ArgoCD you can check it [here](({{< relref "hs_2_k3scilium/index.md">}}))
+> If you missed the previous entry where we go over ArgoCD you can check it [here]({{< relref "hs_2_k3scilium/index.md">}})
 
 ```yaml {filename="argo/cnpg.yaml"}
 apiVersion: argoproj.io/v1alpha1
@@ -186,7 +185,7 @@ In this case we define the destination path where the backups will be in our buc
 compression format for write-head logs and data, and the number of days to retain the data.
 
 The `bootstrap` field provides multiple ways to start up the database including the [recovery option](https://cloudnative-pg.io/docs/1.28/bootstrap#bootstrap-from-a-backup-recovery)
-which allows us to setup [boostrap from an object storage with the barman plugin](https://cloudnative-pg.io/docs/1.28/recovery#recovery-from-an-object-store-with-the-barman-cloud-plugin). This feature allows us to recover our PostgreSQL
+which allows us to set up [bootstrap from an object storage with the barman plugin](https://cloudnative-pg.io/docs/1.28/recovery#recovery-from-an-object-store-with-the-barman-cloud-plugin). This feature allows us to recover our PostgreSQL
 database from an external object storage.
 
 ---
@@ -196,15 +195,15 @@ database from an external object storage.
 ![Linkding Webpage](gallery/linkding_web.png "linkding webpage (https://linkding.link)")
 
 Recently, I've been doing a lot of research for the series and that includes reading documentation for the different technologies, and also blogs across the internet.
-I have been bookmarking a lot, however, when it comes to retrieving a specific link it becomes buried and not easy to find. Moreover, I cannot maintain a consistent list when switching from one device to another. Let's fix that, I'll install the Linkding bookmark manager, a fantastic
-application service to keep track and organize my different links by topics that I can then retrieve easily, this app uses SQlite by default, but we can provide a PostgreSQL database
+I have been bookmarking a lot, however, when it comes to retrieving a specific link it becomes buried and not easy to find. Moreover, I cannot maintain a consistent list when switching from one device to another. Let's fix that; I'll install the Linkding bookmark manager, a fantastic
+application service to keep track and organize my different links by topics that I can then retrieve easily. This app uses SQLite by default, but we can provide a PostgreSQL database
 now that we have our CNPG operator up and running!
 
 ### Preparing the Linkding Resources
 
 Linkding is shipped as a container image, so for this installation we will organize our different manifests and complete the install with Kustomize.
 
-First, we'll start with the deployment, this is a simple one that uses the container image of linkding.
+First, we'll start with the deployment. This is a simple one that uses the container image of linkding.
 
 ```yaml {filename="apps/linkding/deployment.yaml"}
 apiVersion: apps/v1
@@ -308,17 +307,16 @@ spec:
 <details>
 <summary>How to add secrets?</summary>
 
-For a full rundown on how to add secrets, check the last [entry]({{< relref "hs_2_k3scilium/index.md">}})!
-
+For a full rundown on how to add secrets, check the last [entry]({{< relref "hs_3_argocd_secrets_firstapp/index.md">}})!
 </details>
 
-We also need to add the necessary secrets which will be picked by our deployment via `linkding-env-vars`. Namely we provide
+We also need to add the necessary secrets which will be picked by our deployment via `linkding-env-vars`. Namely, we provide
 **LD_DB_DATABASE**,**LD_DB_HOST**, **LD_DB_PASSWORD**, **LD_DB_PORT**, **LD_DB_USER**, **LD_SUPERUSER_NAME**, and **LD_SUPERUSER_PASSWORD**. Lastly, we also need
 to specify our **LD_DB_ENGINE** as postgres. For a full list, check the [linkding options](https://linkding.link/options/#list-of-options) page.
 
 ### Creating a PostgreSQL Cluster
 
-We are now ready to create our PostgreSQL cluster declaratively using CNPG. For this, we create the `Cluster` custom resource provided by CNPG, we will create
+We are now ready to create our PostgreSQL cluster declaratively using CNPG. For this, we create the `Cluster` custom resource provided by CNPG. We will create
 this cluster to serve as the database for our [linkding](https://linkding.link/) application in the next section.
 
 ```yaml {filename="apps/linkding/db.yaml", lineNos=true}
@@ -370,7 +368,7 @@ To check if our cluster resource has installed correctly, we can run the followi
 kubectl get cluster linkding-db -n linkding
 ```
 
-With enough time to allow all the instances to spawn up in the cluster, we'll eventually see the following:
+With enough time to allow all the instances to spin up in the cluster, we'll eventually see the following:
 
 ```term
 NAME          AGE   INSTANCES   READY   STATUS                     PRIMARY
@@ -400,7 +398,7 @@ This give us great flexibility out of the box to use a particular service depend
 
 ### Checking the Status of the Cluster
 
-Early on we installed the cnpg kubectl plugin, we will take advantage of it to get a high level overview of our cluster with the `status` command:
+Early on we installed the cnpg kubectl plugin; we will take advantage of it to get a high-level overview of our cluster with the `status` command:
 
 ```bash
 kubectl cnpg status linkding-db -n linkding
@@ -458,12 +456,12 @@ linkding-db-2   Bound    pvc-7b2e6c91-3f84-45da-9c21-6e8d4a7f2c10   1Gi        R
 linkding-db-3   Bound    pvc-5c8d1a2f-6e73-4f0b-b9a4-3d2f7c6e8b95   1Gi        RWO            local-path     <unset>                 1d
 ```
 
-Indeed we see three `PersistentVolumeClaim` created associated with our three databases (primary, and two replicas). Notice here that the storage class is simply Rancher's [local-path](https://github.com/rancher/local-path-provisioner) that comes as part of the k3s installation,
-but the same will happen with whatever `StorageClass` you select like [Longhorn](https://longhorn.io/) or [Promox CSI](https://github.com/sergelogvinov/proxmox-csi-plugin)
+Indeed, we see three `PersistentVolumeClaim` created associated with our three databases (primary, and two replicas). Notice here that the storage class is simply Rancher's [local-path](https://github.com/rancher/local-path-provisioner) that comes as part of the k3s installation,
+but the same will happen with whatever `StorageClass` you select like [Longhorn](https://longhorn.io/) or [Proxmox CSI](https://github.com/sergelogvinov/proxmox-csi-plugin)
 
 ### Connecting to the PostgreSQL Primary
 
-We can use the plugin as well to connect to our postgreSQL primary instance with the following:
+We can use the plugin as well to connect to our PostgreSQL primary instance with the following:
 
 ```bash
 kubectl cnpg psql linkding-db -n linkding
@@ -479,13 +477,13 @@ kubectl cnpg psql linkding-db -n linkding
 
 ## Wrapping up
 
-That’s it for this entry! I started by discussing a bit of background about running stateful applications in Kubernetes, talking about the `StatefulSet` primitive has its drawbacks and why the `Operator` pattern solves those.
-Then, I moved into a practical implementation by setting the CNPG operator, and the resources for the Linkding application. Lastly, I ran a few commands that build up
-more intuition for managing the postgreSQL cluster and end up seeing our application at work!
+That’s it for this entry! I started by discussing a bit of background about running stateful applications in Kubernetes, talking about how the `StatefulSet` primitive has its drawbacks and why the `Operator` pattern solves those.
+Then, I moved into a practical implementation by setting up the CNPG operator, and the resources for the Linkding application. Lastly, I ran a few commands that build up
+more intuition for managing the postgreSQL cluster and ended up seeing our application at work!
 
 The cluster is now running a stateful application and we can tackle other applications that use relational databases as it is the case with Postgres! However,
-we also want to look into object storage, this will be key for setting up services that need to store files. Most importantly there are already quite a few workloads running, but we are in the dark as far
-as resource consumption goes, wouldn't it be nice to monitor all of it? I got a feeling that in the next entry will have greek fire 🔥 see you in the next one!
+we also want to look into object storage; this will be key for setting up services that need to store files. Most importantly there are already quite a few workloads running, but we are in the dark as far
+as resource consumption goes, wouldn't it be nice to monitor all of it? I have a feeling that the next entry will have Greek fire 🔥 see you in the next one!
 
 - **Previous:** [Kinho's Homelab Series - GitOps, Secrets, and First Applications]({{< relref "hs_3_argocd_secrets_firstapp/index.md">}})
 - **Next:** TBD
