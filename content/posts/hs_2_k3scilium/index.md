@@ -3,7 +3,7 @@ title: "Kinho's Homelab Series - Orchestration Platform and Networking (K3s + Ci
 pubDate: 2026-01-12
 Description: "Let's build a mini homelab! In this entry, I install Kubernetes and do a few modifications to introduce Cilium for networking, observability and security."
 Categories: ["DevOps", "Networking", "Platform Engineering"]
-Tags: ["Homelab Series", "DevOps", "Networking"]
+Tags: ["Homelab Series", "Kubernetes", "DevOps", "Networking"]
 cover: "gallery/homelabs_cover2.png"
 images:
   - "gallery/homelab_in2.png"

@@ -3,7 +3,7 @@ title: "Kinho's Homelab Series - Securing my Network with Tailscale"
 pubDate: 2026-01-05
 Description: "Let's build a mini homelab! we kick off the journey by revitalizing an old laptop with Linux, and setting up a VPN with Tailscale."
 Categories: ["DevOps", "Networking", "Platform Engineering"]
-Tags: ["Homelab Series", "DevOps", "Networking"]
+Tags: ["Homelab Series", "Kubernetes", "DevOps", "Networking"]
 cover: "gallery/homelabs_cover1.png"
 ---
 
